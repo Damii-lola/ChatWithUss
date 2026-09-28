@@ -97,7 +97,7 @@ create table if not exists return_requests (
 create index if not exists return_requests_shop_status_idx on return_requests (shop_id, status, created_at desc);
 create index if not exists return_requests_email_idx on return_requests (shop_id, lower(customer_email));
 
--- ============ AI KNOWLEDGE (mistral-embed = 1024 dims) ============
+-- ============ AI KNOWLEDGE (Cloudflare Workers AI @cf/baai/bge-m3 = 1024 dims) ============
 create table if not exists knowledge_chunks (
   id uuid primary key default gen_random_uuid(),
   shop_id uuid not null references shops(id) on delete cascade,

@@ -11,7 +11,8 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch --env-file=.env src/index.js",
-    "test": "node --test \"test/*.test.js\""
+    "test": "node --test \"test/*.test.js\"",
+    "check:ai": "node --env-file-if-exists=.env scripts/check-ai.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.58.0",

@@ -56,7 +56,16 @@ export function loadConfig(env = process.env) {
       serviceRoleKey: env.SUPABASE_SERVICE_ROLE_KEY.trim(),
     }),
     tokenEncryptionKey: env.TOKEN_ENCRYPTION_KEY,
-    mistralApiKey: env.MISTRAL_API_KEY || null,
+    // Cloudflare Workers AI (AI answers, Phase 5). Optional until then.
+    cloudflareAI:
+      env.CLOUDFLARE_ACCOUNT_ID && env.CLOUDFLARE_API_TOKEN
+        ? Object.freeze({
+            accountId: env.CLOUDFLARE_ACCOUNT_ID.trim(),
+            apiToken: env.CLOUDFLARE_API_TOKEN.trim(),
+            embedModel: env.CF_AI_EMBED_MODEL || undefined,
+            chatModel: env.CF_AI_CHAT_MODEL || undefined,
+          })
+        : null,
     trialDays: 14,
   });
 }

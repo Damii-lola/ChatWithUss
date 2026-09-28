@@ -1,0 +1,12 @@
+{
+  "name": "ChatWithUss",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "postCreateCommand": "npm install -g @shopify/cli@latest && cd server && npm ci",
+  "customizations": {
+    "vscode": {
+      "extensions": ["Shopify.theme-check-vscode", "dbaeumer.vscode-eslint"]
+    }
+  },
+  "forwardPorts": [3000],
+  "portsAttributes": { "3000": { "label": "ChatWithUss backend" } }
+}

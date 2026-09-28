@@ -14,7 +14,7 @@ export function testConfig(overrides = {}) {
     shopify: { apiKey: API_KEY, apiSecret: API_SECRET, apiVersion: '2026-07', scopes: [], widgetHandle: 'chat-widget' },
     supabase: { url: 'http://unused', serviceRoleKey: 'unused' },
     tokenEncryptionKey: 'an-encryption-key-that-is-long-enough',
-    mistralApiKey: null,
+    cloudflareAI: null,
     trialDays: 14,
     ...overrides,
   };
