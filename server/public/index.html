@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="shopify-api-key" content="{{SHOPIFY_API_KEY}}" />
+    <!-- App Bridge must be the first script, loaded synchronously (Shopify requirement). -->
+    <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
+    <title>ChatWithUss</title>
+    <link rel="stylesheet" href="/assets/app.css?v={{CSS_VERSION}}" />
+  </head>
+  <body>
+    <ui-nav-menu>
+      <a href="/" rel="home">Home</a>
+      <a href="/settings">Widget settings</a>
+    </ui-nav-menu>
+
+    <ui-save-bar id="settings-save-bar">
+      <button variant="primary" id="savebar-save">Save</button>
+      <button id="savebar-discard">Discard</button>
+    </ui-save-bar>
+
+    <main id="app" class="app" aria-live="polite">
+      <div class="page">
+        <div class="skeleton skeleton--title"></div>
+        <div class="grid grid--stats">
+          <div class="card skeleton skeleton--tile"></div>
+          <div class="card skeleton skeleton--tile"></div>
+          <div class="card skeleton skeleton--tile"></div>
+          <div class="card skeleton skeleton--tile"></div>
+        </div>
+        <div class="card skeleton skeleton--block"></div>
+      </div>
+    </main>
+
+    <div id="toast-root" class="toast-root" aria-live="assertive"></div>
+    <script type="module" src="/assets/app.js?v={{JS_VERSION}}"></script>
+  </body>
+</html>

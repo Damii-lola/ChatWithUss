@@ -1,0 +1,47 @@
+# ChatWithUss — Shopify app configuration (source of truth).
+# `shopify app deploy` pushes this to Shopify and overwrites what's in the dashboard.
+# Only edit: client_id (your app's Client ID from the Dev Dashboard → Settings).
+
+client_id = "REPLACE_WITH_YOUR_CLIENT_ID"
+name = "ChatWithUss"
+handle = "chatwithuss"
+application_url = "https://app.chatwithuss.com"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = false
+include_config_on_deploy = true
+
+[access_scopes]
+scopes = "read_orders,write_orders,read_customers,read_products,read_fulfillments,read_merchant_managed_fulfillment_orders,read_returns,write_returns,read_legal_policies,read_online_store_pages,read_content,read_themes"
+use_legacy_install_flow = false
+
+[auth]
+redirect_urls = [
+  "https://app.chatwithuss.com/auth/callback",
+  "https://app.chatwithuss.com/auth/shopify/callback",
+  "https://app.chatwithuss.com/api/auth/callback"
+]
+
+[webhooks]
+api_version = "2026-07"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "https://app.chatwithuss.com/webhooks"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/scopes_update" ]
+  uri = "https://app.chatwithuss.com/webhooks"
+
+  [[webhooks.subscriptions]]
+  compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
+  uri = "https://app.chatwithuss.com/webhooks"
+
+[app_proxy]
+url = "https://app.chatwithuss.com/proxy"
+subpath = "chatwithuss"
+prefix = "apps"
+
+[pos]
+embedded = false

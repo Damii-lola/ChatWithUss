@@ -1,0 +1,14 @@
+{
+  "name": "chatwithuss",
+  "private": true,
+  "version": "1.0.0",
+  "description": "ChatWithUss: order self-service & AI support widget for Shopify",
+  "workspaces": [
+    "extensions/*"
+  ],
+  "scripts": {
+    "shopify": "shopify",
+    "deploy": "shopify app deploy",
+    "info": "shopify app info"
+  }
+}
