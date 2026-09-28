@@ -2,7 +2,7 @@
 # `shopify app deploy` pushes this to Shopify and overwrites what's in the dashboard.
 # Only edit: client_id (your app's Client ID from the Dev Dashboard → Settings).
 
-client_id = "REPLACE_WITH_YOUR_CLIENT_ID"
+client_id = "3977df38a0809cdf520981d0ada429f9"
 name = "ChatWithUss"
 handle = "chatwithuss"
 application_url = "https://chatwithuss.onrender.com"
@@ -10,7 +10,6 @@ embedded = true
 
 [build]
 automatically_update_urls_on_dev = false
-include_config_on_deploy = true
 
 [access_scopes]
 scopes = "read_orders,write_orders,read_customers,read_products,read_fulfillments,read_merchant_managed_fulfillment_orders,read_returns,write_returns,read_legal_policies,read_online_store_pages,read_content,read_themes"
