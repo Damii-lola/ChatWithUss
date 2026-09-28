@@ -24,9 +24,9 @@ chatwithuss/
 | Phase | | |
 |---|---|---|
 | 1 | Foundation: auth, webhooks, GDPR, app proxy, dashboard, settings | ✅ |
-| 2 | Storefront chat widget (Theme App Extension) | next |
-| 3 | Order tracking | |
-| 4 | Returns portal | |
+| 2 | Storefront chat widget (Theme App Extension) | ✅ |
+| 3 | Order tracking (guest: order # + email · logged-in: one tap) | ✅ |
+| 4 | Returns portal | next |
 | 5 | AI FAQ (Cloudflare Workers AI + pgvector) | |
 | 6 | Merchant inbox + order actions | |
 | 7 | Billing + App Store submission | |
@@ -60,8 +60,16 @@ Repo → **Code → Codespaces → Create codespace on main**. The Shopify CLI i
 2. In the terminal: `shopify app deploy` → log in via the link it prints → answer **Yes** to release.
 3. Commit the toml change: `git commit -am "Set client_id" && git push`.
 
-### 4. Install on your dev store
+### 4. Protected customer data (required for order tracking)
+Dev Dashboard / Partner Dashboard → ChatWithUss → **API access requests** → **Protected customer data access** → **Request access**: select **Email** (reason: *verify the shopper owns the order before showing its tracking status*). On development stores this works immediately, no review.
+
+### 5. Install on your dev store
 Dev Dashboard → ChatWithUss → **Test on development store** → install. The dashboard opens inside Shopify admin with your store's brand already applied.
+
+### 6. Turn on the widget
+Shopify admin → **Online Store → Themes → Customize → App embeds** → switch on **ChatWithUss chat** → **Save**. (The dashboard's setup guide has a one-click button for this and detects when it's on.)
+
+Storefront deep links: `/#track-order` opens tracking, `/#chatwithuss` opens the widget, and `window.ChatWithUss.open()` / `.track('#1001')` work from any theme code.
 
 ## Development
 
@@ -69,7 +77,7 @@ Dev Dashboard → ChatWithUss → **Test on development store** → install. The
 cd server
 cp .env.example .env   # fill it in
 npm install
-npm test               # 41 tests, no network needed
+npm test               # 56 tests, no network needed
 npm run dev
 npm run check:ai       # verifies your Cloudflare Workers AI credentials
 ```

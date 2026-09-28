@@ -10,6 +10,7 @@ import { createTokenManager, ReauthRequiredError } from './lib/shopify/tokens.js
 import { createAdminClient, ShopifyApiError } from './lib/shopify/admin.js';
 import { sanitizeShop, verifySessionToken } from './lib/shopify/verify.js';
 import { createOnboarding } from './services/onboarding.js';
+import { createWidgetConfigSync } from './services/widgetConfigSync.js';
 import { sessionAuth } from './middleware/sessionAuth.js';
 import { baseHeaders, embeddedFrameHeaders, verifyAppProxy } from './middleware/security.js';
 import { webhooksRouter } from './routes/webhooks.js';
@@ -28,6 +29,8 @@ export function createApp({ config, store, logger, fetchImpl = globalThis.fetch 
   const tokens = createTokenManager({ store, cipher, auth, logger, trialDays: config.trialDays });
   const adminFor = (shop) => createAdminClient({ shop, tokens, apiVersion: config.shopify.apiVersion, fetchImpl, logger });
   const onboarding = createOnboarding({ store, adminFor, apiVersion: config.shopify.apiVersion, fetchImpl, logger });
+
+  const widgetConfig = createWidgetConfigSync({ store, adminFor, logger });
 
   const shellHtml = renderShell(config);
 
@@ -52,10 +55,10 @@ export function createApp({ config, store, logger, fetchImpl = globalThis.fetch 
   app.use('/webhooks', webhooksRouter({ config, store, logger }));
 
   // ---------------------------------------------------------------- storefront app proxy
-  app.use('/proxy', verifyAppProxy({ config, store }), proxyRouter());
+  app.use('/proxy', verifyAppProxy({ config, store }), proxyRouter({ store, adminFor, logger }));
 
   // ---------------------------------------------------------------- embedded dashboard API
-  app.use('/api', sessionAuth({ config, tokens, onboarding, store, logger }), apiRouter({ config, store, onboarding, logger }));
+  app.use('/api', sessionAuth({ config, tokens, onboarding, store, logger }), apiRouter({ config, store, onboarding, adminFor, widgetConfig, logger }));
 
   // ---------------------------------------------------------------- static dashboard assets
   app.use('/assets', express.static(PUBLIC_DIR, { index: false, maxAge: config.isProd ? '1y' : 0, immutable: config.isProd }));
@@ -104,7 +107,7 @@ export function createApp({ config, store, logger, fetchImpl = globalThis.fetch 
     res.status(status).json({ error: status === 502 ? 'shopify_error' : 'internal_error', message: 'Something went wrong. Please try again.' });
   });
 
-  return { app, tokens, adminFor, onboarding };
+  return { app, tokens, adminFor, onboarding, widgetConfig };
 }
 
 /** index.html with the API key + cache-busted asset URLs baked in once at boot. */

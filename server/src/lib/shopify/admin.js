@@ -20,7 +20,12 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 export function createAdminClient({ shop, tokens, apiVersion, fetchImpl = globalThis.fetch, logger, timeoutMs = 20000, sleepImpl = sleep }) {
   const endpoint = `https://${shop}/admin/api/${apiVersion}/graphql.json`;
 
-  async function graphql(query, variables = {}, { maxAttempts = 4 } = {}) {
+  /**
+   * @param {object} opts
+   * @param {boolean} opts.partial - return { data, errors } instead of throwing on GraphQL errors
+   *   (Shopify answers 200 + errors + null fields when protected customer data isn't approved).
+   */
+  async function graphql(query, variables = {}, { maxAttempts = 4, partial = false } = {}) {
     let forcedRefresh = false;
 
     for (let attempt = 1; ; attempt++) {
@@ -75,11 +80,12 @@ export function createAdminClient({ shop, tokens, apiVersion, fetchImpl = global
           continue;
         }
         const message = body.errors.map((e) => e?.message).filter(Boolean).join('; ') || 'GraphQL error';
+        if (partial) return { data: body.data ?? null, errors: body.errors };
         logger?.warn('shopify.graphql_error', { shop, message });
         throw new ShopifyApiError(message, { status: res.status, errors: body.errors });
       }
 
-      return body.data;
+      return partial ? { data: body.data, errors: [] } : body.data;
     }
   }
 

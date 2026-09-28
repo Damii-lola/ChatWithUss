@@ -163,7 +163,8 @@ test('app proxy: signed request gets public config; unsigned/stale/uninstalled r
   assert.equal(res.status, 200);
   const body = await res.json();
   assert.equal(body.config.shop_name, 'Demo Store');
-  assert.equal(body.config.features.returns, true);
+  assert.equal(body.config.features.tracking, true);
+  assert.equal(body.config.features.returns, false, 'returns not live yet (Phase 4)');
   assert.equal(body.customer.logged_in, false);
   assert.equal(JSON.stringify(body).includes('owner@demo.test'), false);
 

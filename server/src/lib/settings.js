@@ -17,6 +17,12 @@ export const DEFAULT_SETTINGS = Object.freeze({
   return_reasons: ['Wrong size', 'Damaged item', 'Not as described', 'Changed my mind', 'Other'],
 });
 
+/**
+ * Features that are actually shipped to storefronts. Merchant toggles for the rest are saved
+ * now and switch on automatically when each feature ships (returns: Phase 4, AI: Phase 5).
+ */
+export const LIVE_FEATURES = Object.freeze({ tracking: true, returns: false, ai: false });
+
 const HEX_RE = /^#[0-9a-f]{6}$/i;
 
 export function withDefaults(settings) {
@@ -124,8 +130,8 @@ export function publicWidgetConfig(shop) {
     greeting: s.greeting,
     features: {
       tracking: true,
-      returns: s.returns_enabled,
-      ai: s.ai_enabled,
+      returns: s.returns_enabled && LIVE_FEATURES.returns,
+      ai: s.ai_enabled && LIVE_FEATURES.ai,
     },
     return_window_days: s.return_window_days,
     return_reasons: s.return_reasons,

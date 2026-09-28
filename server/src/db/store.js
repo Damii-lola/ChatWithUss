@@ -133,6 +133,10 @@ export function createSupabaseStore({ url, serviceRoleKey }) {
     },
 
     // ------------------------------------------------------------ stats
+    async recordResolution(shopId, type) {
+      check('recordResolution', await db.from('resolution_events').insert({ shop_id: shopId, type }));
+    },
+
     async countResolutions(shopId, sinceIso) {
       const rows = check(
         'countResolutions',

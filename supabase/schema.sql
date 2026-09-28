@@ -33,6 +33,8 @@ alter table shops add column if not exists primary_domain text;
 alter table shops add column if not exists shopify_shop_id text;
 alter table shops add column if not exists brand_synced_at timestamptz;
 alter table shops add column if not exists trial_ends_at timestamptz;
+alter table shops add column if not exists widget_seen_at timestamptz;
+alter table shops add column if not exists widget_config_hash text;
 
 -- Settings default lives in the app (server/src/lib/settings.js); column stays a plain jsonb bag.
 alter table shops alter column settings set default '{}'::jsonb;

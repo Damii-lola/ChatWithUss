@@ -1,0 +1,46 @@
+{%- comment -%}
+  ChatWithUss app embed. Merchants switch it on in Online Store → Themes → Customize → App embeds.
+  Colors, greeting, position and features come from the ChatWithUss dashboard (fetched through the
+  signed app proxy), so nothing here needs configuring.
+{%- endcomment -%}
+{%- liquid
+  assign root = routes.root_url
+  if root == '/'
+    assign proxy_base = '/apps/chatwithuss'
+  else
+    assign proxy_base = root | append: '/apps/chatwithuss'
+  endif
+-%}
+<div
+  id="chatwithuss-root"
+  data-proxy="{{ proxy_base }}"
+  data-shop="{{ shop.permanent_domain }}"
+  data-shop-name="{{ shop.name | escape }}"
+  data-locale="{{ request.locale.iso_code }}"
+  data-currency="{{ cart.currency.iso_code }}"
+  data-logged-in="{% if customer %}true{% else %}false{% endif %}"
+  data-design-mode="{% if request.design_mode %}true{% else %}false{% endif %}"
+  data-hide-on-mobile="{{ block.settings.hide_on_mobile }}"
+  hidden
+></div>
+<script type="application/json" id="chatwithuss-config">{{ app.metafields.chatwithuss.widget.value | json }}</script>
+
+{% schema %}
+{
+  "name": "ChatWithUss chat",
+  "target": "body",
+  "javascript": "chatwithuss.js",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Colors, greeting and features are managed in the ChatWithUss app (Apps → ChatWithUss → Widget settings)."
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_on_mobile",
+      "label": "Hide on mobile",
+      "default": false
+    }
+  ]
+}
+{% endschema %}

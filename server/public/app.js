@@ -35,11 +35,24 @@ function toast(message, { error = false } = {}) {
   setTimeout(() => el.remove(), 3500);
 }
 
-function textOn(hex) {
+function lum(hex) {
   const n = parseInt(String(hex || '#000000').slice(1), 16);
   const lin = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
-  const L = 0.2126 * lin((n >> 16) & 255) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
-  return L > 0.45 ? '#111111' : '#FFFFFF';
+  return 0.2126 * lin((n >> 16) & 255) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
+}
+const contrast = (a, b) => { const x = lum(a); const y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+/** Same rules as the storefront widget: best-reading text colour, accent darkened to AA on white. */
+function textOn(hex) {
+  return contrast(hex, '#FFFFFF') >= contrast(hex, '#111111') ? '#FFFFFF' : '#111111';
+}
+function inkOnWhite(hex) {
+  let n = parseInt(hex.slice(1), 16);
+  let r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255, out = hex;
+  for (let i = 0; i < 20 && contrast(out, '#FFFFFF') < 4.5; i++) {
+    r = Math.round(r * 0.88); g = Math.round(g * 0.88); b = Math.round(b * 0.88);
+    out = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase()}`;
+  }
+  return out;
 }
 
 function normalizeHex(value) {
@@ -106,6 +119,7 @@ const state = {
   errors: {},
   saving: false,
   syncing: false,
+  widget: null, // { live, embed_enabled, theme, seen_at }
 };
 
 const routeName = () => ((location.pathname.replace(/\/+$/, '') || '/') === '/settings' ? 'settings' : 'home');
@@ -129,6 +143,16 @@ document.addEventListener('shopify:navigate', (e) => {
 });
 
 document.addEventListener('click', (e) => {
+  const act = e.target.closest('[data-act="recheck-widget"]');
+  if (act) {
+    act.disabled = true;
+    act.textContent = 'Checking…';
+    loadWidgetStatus().then(() => {
+      if (state.widget?.live) toast('Chat widget is live on your store');
+      else toast('Not on yet. Switch it on in App embeds and click Save.', { error: true });
+    });
+    return;
+  }
   const link = e.target.closest('[data-nav]');
   if (link) {
     e.preventDefault();
@@ -145,10 +169,25 @@ async function boot() {
     resetDraft();
     render();
     loadStats();
+    loadWidgetStatus();
   } catch (err) {
     renderFatal(err);
   }
 }
+
+async function loadWidgetStatus() {
+  try {
+    state.widget = await api('/api/widget-status');
+  } catch {
+    state.widget = { live: false, embed_enabled: null };
+  }
+  if (routeName() === 'home') render();
+}
+
+// Merchant flips the embed on in the theme editor tab, comes back → re-check automatically.
+window.addEventListener('focus', () => {
+  if (state.me && state.widget && !state.widget.live) loadWidgetStatus();
+});
 
 async function loadStats() {
   try {
@@ -271,6 +310,16 @@ function setupGuide() {
       desc: `ChatWithUss can read orders, fulfillments and store policies from ${shop.name}.`,
     },
     {
+      done: Boolean(state.widget?.live),
+      pending: state.widget === null,
+      title: 'Turn on the chat widget',
+      desc: state.widget?.embed_enabled === false
+        ? `It's switched off in your ${state.widget.theme ? `"${state.widget.theme}" ` : ''}theme. Open the theme editor, switch on "ChatWithUss chat" under App embeds, then click Save.`
+        : 'One click: open the theme editor, make sure "ChatWithUss chat" is on under App embeds, then click Save.',
+      action: { label: 'Turn on in theme editor', href: state.me.app.theme_editor_url },
+      secondary: { label: 'Check again', act: 'recheck-widget' },
+    },
+    {
       done: Boolean(shop.brand_synced_at || settings.brand_source === 'custom'),
       title: 'Match your brand',
       desc: 'Your logo and colors are pulled from Shopify automatically. Fine-tune them anytime.',
@@ -308,7 +357,12 @@ function setupGuide() {
               ${i === firstOpen || !s.done ? raw(html`<div class="guide__desc">${s.desc}</div>`) : ''}
             </div>
             ${!s.done && s.action
-              ? raw(html`<button class="btn ${i === firstOpen ? 'btn--primary' : 'btn--secondary'}" data-nav="${s.action.nav}">${s.action.label}</button>`)
+              ? raw(html`<div class="guide__actions">
+                  ${s.secondary && i === firstOpen ? raw(html`<button class="btn btn--plain" data-act="${s.secondary.act}">${s.secondary.label}</button>`) : ''}
+                  ${s.action.href
+                    ? raw(html`<a class="btn ${i === firstOpen ? 'btn--primary' : 'btn--secondary'}" href="${s.action.href}" target="_top">${s.action.label}</a>`)
+                    : raw(html`<button class="btn ${i === firstOpen ? 'btn--primary' : 'btn--secondary'}" data-nav="${s.action.nav}">${s.action.label}</button>`)}
+                </div>`)
               : ''}
           </li>`))}
       </ol>
@@ -375,10 +429,10 @@ function colorField(key, label, help) {
     </div>`;
 }
 
-function toggleRow(key, title, desc) {
+function toggleRow(key, title, desc, soon = false) {
   return html`
     <div class="toggle-row">
-      <div><div class="field__label">${title}</div><div class="field__help">${desc}</div></div>
+      <div><div class="field__label">${title}${soon ? raw(' <span class="badge badge--info">Launching soon</span>') : ''}</div><div class="field__help">${desc}${soon ? ' Turn it on now and it goes live automatically when it ships.' : ''}</div></div>
       <span class="switch">
         <input type="checkbox" role="switch" data-toggle="${key}" ${state.draft[key] ? 'checked' : ''} aria-label="${title}" />
         <span class="switch__track"></span>
@@ -443,8 +497,8 @@ function settingsView() {
 
           <section class="card">
             <div class="card__header"><div class="card__title">Features</div></div>
-            ${raw(toggleRow('returns_enabled', 'Returns portal', 'Shoppers pick items and a reason; you approve with one click.'))}
-            ${raw(toggleRow('ai_enabled', 'AI answers', `Instant answers about shipping, sizing and policies, trained on ${shop.name}'s pages.`))}
+            ${raw(toggleRow('returns_enabled', 'Returns portal', 'Shoppers pick items and a reason; you approve with one click.', !state.me.live_features?.returns))}
+            ${raw(toggleRow('ai_enabled', 'AI answers', `Instant answers about shipping, sizing and policies, trained on ${shop.name}'s pages.`, !state.me.live_features?.ai))}
           </section>
 
           <section class="card" id="returns-card" ${d.returns_enabled ? '' : 'hidden'}>
@@ -491,12 +545,14 @@ function previewMarkup() {
   const accent = normalizeHex(d.accent_color) || '#4F46E5';
   const onBrand = textOn(brand);
   const onAccent = textOn(accent);
+  const ink = inkOnWhite(accent);
   const name = state.me.shop.name;
   const logo = /^https:\/\//i.test(d.logo_url || '') ? d.logo_url.replace(/['"()\\\s]/g, (c) => encodeURIComponent(c)) : null;
+  const live = state.me.live_features || {};
   const actions = [
     { icon: I.box, title: 'Track my order', sub: 'Live delivery status' },
-    d.returns_enabled && { icon: I.ret, title: 'Start a return', sub: `Within ${d.return_window_days} days` },
-    d.ai_enabled && { icon: I.spark, title: 'Ask a question', sub: 'Instant answers, 24/7' },
+    d.returns_enabled && { icon: I.ret, title: 'Start a return', sub: `Within ${d.return_window_days} days`, soon: !live.returns },
+    d.ai_enabled && { icon: I.spark, title: 'Ask a question', sub: 'Instant answers, 24/7', soon: !live.ai },
   ].filter(Boolean);
   const side = d.position === 'left' ? 'left' : 'right';
 
@@ -510,16 +566,27 @@ function previewMarkup() {
           ${logo
             ? raw(html`<span class="w-logo w-logo--img" style="background-image:url('${logo}')"></span>`)
             : raw(html`<span class="w-logo">${name.charAt(0).toUpperCase()}</span>`)}
-          <div><div class="w-shop">${name}</div><div class="w-status">Typically replies instantly</div></div>
+          <div><div class="w-shop">${name}</div><div class="w-status">${state.me.live_features?.ai && d.ai_enabled ? 'Instant answers, 24/7' : 'Order help, anytime'}</div></div>
         </div>
         <div class="w-greeting">${d.greeting || ' '}</div>
       </div>
       <div class="w-body">
-        ${actions.map((a) => raw(html`
+        ${actions.filter((a) => !a.soon).length === 1
+          ? raw(html`
+            <div class="w-label">Where’s my order?</div>
+            <div class="w-form">
+              <div class="w-field-label">Order number</div><div class="w-input">e.g. #1001</div>
+              <div class="w-field-label">Email used at checkout</div><div class="w-input">you@example.com</div>
+              <div class="w-btn" style="background:${accent};color:${onAccent}">Track order</div>
+            </div>
+            ${actions.filter((a) => a.soon).length
+              ? raw(html`<div class="w-soon-note">Coming soon: ${actions.filter((a) => a.soon).map((a) => a.title).join(' · ')}</div>`)
+              : ''}`)
+          : actions.map((a) => raw(html`
           <div class="w-action">
-            <span class="w-action__icon" style="background:${accent}1A;color:${accent}">${raw(a.icon)}</span>
+            <span class="w-action__icon" style="background:${ink}1F;color:${ink}">${raw(a.icon)}</span>
             <span class="w-action__text">${a.title}<small>${a.sub}</small></span>
-            <span class="w-action__chev">${raw(I.chev)}</span>
+            ${a.soon ? raw('<span class="w-soon">Soon</span>') : raw(html`<span class="w-action__chev">${raw(I.chev)}</span>`)}
           </div>`))}
       </div>
       <div class="w-foot">Powered by ChatWithUss</div>

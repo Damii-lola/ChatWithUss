@@ -74,7 +74,7 @@ ui-nav-menu, ui-save-bar { display: none !important; }
   .grid { gap: 12px; }
   .card__header { flex-wrap: wrap; }
   .guide__item { grid-template-columns: 24px 1fr; }
-  .guide__item > .btn { grid-column: 2; justify-self: start; }
+  .guide__item > .btn, .guide__item > .guide__actions { grid-column: 2; justify-self: start; justify-content: flex-start; }
   .stat { min-height: 0; }
   .stat__value { font-size: 24px; line-height: 28px; }
   .stat__hint { margin-top: 0; }
@@ -135,6 +135,7 @@ ui-nav-menu, ui-save-bar { display: none !important; }
 .guide__title { font-weight: 600; color: var(--text-strong); }
 .guide__item--done .guide__title { color: var(--text-subdued); }
 .guide__desc { color: var(--text-subdued); margin-top: 2px; }
+.guide__actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
 
 /* ------------------------------------------------------------------ breakdown bars */
 .bars { display: flex; flex-direction: column; gap: 12px; }
@@ -236,6 +237,13 @@ ui-nav-menu, ui-save-bar { display: none !important; }
 .w-action__icon svg { width: 16px; height: 16px; }
 .w-action__text small { display: block; font-weight: 450; color: #6b6b6b; font-size: 11.5px; }
 .w-action__chev { margin-left: auto; color: #b0b0b0; }
+.w-label { font-size: 10.5px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: #7a7a7a; margin: 2px 2px 0; }
+.w-form { background: #fff; border-radius: 12px; padding: 12px; box-shadow: 0 0 0 1px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04); }
+.w-field-label { font-size: 11.5px; font-weight: 600; color: #1a1a1a; margin: 0 0 4px; }
+.w-input { height: 32px; border-radius: 8px; border: 1.5px solid #d4d4d8; padding: 0 10px; display: flex; align-items: center; color: #9a9a9a; font-size: 12px; margin-bottom: 10px; }
+.w-btn { height: 36px; border-radius: 9px; display: grid; place-items: center; font-weight: 650; font-size: 13px; }
+.w-soon-note { font-size: 11px; color: #8a8a8a; text-align: center; padding: 2px 4px 0; }
+.w-soon { margin-left: auto; font-size: 10.5px; font-weight: 650; color: #6b6b6b; background: #f0f0f0; border-radius: 999px; padding: 2px 8px; }
 .w-foot { text-align: center; font-size: 10.5px; color: #9a9a9a; padding: 8px 0 10px; background: #fafafa; }
 .w-launcher { position: absolute; bottom: 16px; width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; box-shadow: 0 6px 16px -2px rgba(0, 0, 0, 0.3); transition: left 0.25s ease, right 0.25s ease; }
 .w-launcher--right { right: 16px; }

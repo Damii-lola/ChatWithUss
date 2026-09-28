@@ -121,6 +121,9 @@ export function memoryStore() {
       for (let i = returns.length - 1; i >= 0; i--) if (retIds.has(returns[i].id)) returns.splice(i, 1);
       return { conversations: convIds.size, messages: found.messages.length, returns: retIds.size };
     },
+    async recordResolution(shopId, type) {
+      events.push({ shop_id: shopId, type, created_at: new Date().toISOString() });
+    },
     async countResolutions(shopId, since) {
       const out = {};
       for (const e of events) if (e.shop_id === shopId && e.created_at >= since) out[e.type] = (out[e.type] || 0) + 1;
