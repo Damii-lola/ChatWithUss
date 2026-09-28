@@ -5,7 +5,7 @@
 client_id = "REPLACE_WITH_YOUR_CLIENT_ID"
 name = "ChatWithUss"
 handle = "chatwithuss"
-application_url = "https://app.chatwithuss.com"
+application_url = "https://chatwithuss.onrender.com"
 embedded = true
 
 [build]
@@ -18,9 +18,9 @@ use_legacy_install_flow = false
 
 [auth]
 redirect_urls = [
-  "https://app.chatwithuss.com/auth/callback",
-  "https://app.chatwithuss.com/auth/shopify/callback",
-  "https://app.chatwithuss.com/api/auth/callback"
+  "https://chatwithuss.onrender.com/auth/callback",
+  "https://chatwithuss.onrender.com/auth/shopify/callback",
+  "https://chatwithuss.onrender.com/api/auth/callback"
 ]
 
 [webhooks]
@@ -28,18 +28,18 @@ api_version = "2026-07"
 
   [[webhooks.subscriptions]]
   topics = [ "app/uninstalled" ]
-  uri = "https://app.chatwithuss.com/webhooks"
+  uri = "https://chatwithuss.onrender.com/webhooks"
 
   [[webhooks.subscriptions]]
   topics = [ "app/scopes_update" ]
-  uri = "https://app.chatwithuss.com/webhooks"
+  uri = "https://chatwithuss.onrender.com/webhooks"
 
   [[webhooks.subscriptions]]
   compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
-  uri = "https://app.chatwithuss.com/webhooks"
+  uri = "https://chatwithuss.onrender.com/webhooks"
 
 [app_proxy]
-url = "https://app.chatwithuss.com/proxy"
+url = "https://chatwithuss.onrender.com/proxy"
 subpath = "chatwithuss"
 prefix = "apps"
 

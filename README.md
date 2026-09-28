@@ -49,9 +49,9 @@ SQL Editor → paste `supabase/schema.sql` → **Run**. Safe to run again anytim
 | `CLOUDFLARE_ACCOUNT_ID` | dash.cloudflare.com → right sidebar **Account ID** |
 | `CLOUDFLARE_API_TOKEN` | My Profile → API Tokens → Create Token → **Workers AI** template |
 
-Then Render → your service → **Settings → Custom Domains** → add `app.chatwithuss.com`, and create the CNAME it shows at your DNS provider.
+Check: `https://chatwithuss.onrender.com/healthz?deep=1` → `{"ok":true,"db":"ok"}`
 
-Check: `https://app.chatwithuss.com/healthz?deep=1` → `{"ok":true,"db":"ok"}`
+**Moving to a custom domain later** (e.g. `app.chatwithuss.com`): Render → service → Settings → Custom Domains → add it, create the CNAME at your DNS provider, then replace `chatwithuss.onrender.com` in `shopify.app.toml` + `render.yaml` and run `shopify app deploy`.
 
 ### 3. Shopify config (Codespaces)
 Repo → **Code → Codespaces → Create codespace on main**. The Shopify CLI installs itself (wait for the terminal to finish).

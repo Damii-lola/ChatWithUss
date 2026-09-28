@@ -14,7 +14,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: APP_URL
-        value: https://app.chatwithuss.com
+        value: https://chatwithuss.onrender.com
       - key: SHOPIFY_API_KEY
         sync: false
       - key: SHOPIFY_API_SECRET
